@@ -1,80 +1,45 @@
-const mongoose = require("mongoose");
+const {Sequelize, DataTypes} = require("sequelize");
 
-let schema = new mongoose.Schema(
+const sequelize = new Sequelize("employee", "root", "", {
+  host: "localhost",
+  dialect: "mysql",
+});
+
+const Application = sequelize.define(
+  "application",
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
-    recruiterId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
+    recruiter_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
-    jobId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
+    job_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     status: {
-      type: String,
-      enum: [
-        "applied", // when a applicant is applied
-        "shortlisted", // when a applicant is shortlisted
-        "accepted", // when a applicant is accepted
-        "rejected", // when a applicant is rejected
-        "deleted", // when any job is deleted
-        "cancelled", // an application is cancelled by its author or when other application is accepted
-        "finished", // when job is over
-      ],
-      default: "applied",
-      required: true,
+      type: DataTypes.STRING(20),
+      allowNull: false,
     },
-    dateOfApplication: {
-      type: Date,
-      default: Date.now,
+    date_of_application: {
+      type: DataTypes.DATE,
+      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
     },
-    dateOfJoining: {
-      type: Date,
-      validate: [
-        {
-          validator: function (value) {
-            return this.dateOfApplication <= value;
-          },
-          msg: "dateOfJoining should be greater than dateOfApplication",
-        },
-      ],
+    date_of_joining: {
+      type: DataTypes.DATE,
     },
     sop: {
-      type: String,
-      validate: {
-        validator: function (v) {
-          return v.split(" ").filter((ele) => ele != "").length <= 250;
-        },
-        msg: "Statement of purpose should not be greater than 250 words",
-      },
+      type: DataTypes.STRING(255),
     },
   },
-  { collation: { locale: "en" } }
+  {
+    tableName: "applications",
+    timestamps: false,
+  }
 );
+sequelize.sync();
 
-// schema.virtual("applicationUser", {
-//   ref: "JobApplicantInfo",
-//   localField: "userId",
-//   foreignField: "userId",
-//   justOne: true,
-// });
-
-// schema.virtual("applicationRecruiter", {
-//   ref: "RecruiterInfo",
-//   localField: "recruiterId",
-//   foreignField: "userId",
-//   justOne: true,
-// });
-
-// schema.virtual("applicationJob", {
-//   ref: "jobs",
-//   localField: "jobId",
-//   foreignField: "_id",
-//   justOne: true,
-// });
-
-module.exports = mongoose.model("applications", schema);
+module.exports = Application;

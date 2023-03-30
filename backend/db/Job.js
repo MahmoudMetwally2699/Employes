@@ -1,135 +1,93 @@
-const mongoose = require("mongoose");
+const {Sequelize, DataTypes} = require("sequelize");
+const sequelize = new Sequelize("employee", "root", "", {
+  host: "localhost",
+  dialect: "mysql",
+});
 
-let schema = new mongoose.Schema(
+const Job = sequelize.define(
+  "jobs",
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     title: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     maxApplicants: {
-      type: Number,
-      validate: [
-        {
-          validator: Number.isInteger,
-          msg: "maxApplicants should be an integer",
-        },
-        {
-          validator: function (value) {
-            return value > 0;
-          },
-          msg: "maxApplicants should greater than 0",
-        },
-      ],
+      type: DataTypes.INTEGER,
+      validate: {
+        isInt: true,
+        min: 1,
+      },
     },
     maxPositions: {
-      type: Number,
-      validate: [
-        {
-          validator: Number.isInteger,
-          msg: "maxPostions should be an integer",
-        },
-        {
-          validator: function (value) {
-            return value > 0;
-          },
-          msg: "maxPositions should greater than 0",
-        },
-      ],
+      type: DataTypes.INTEGER,
+      validate: {
+        isInt: true,
+        min: 1,
+      },
     },
     activeApplications: {
-      type: Number,
-      default: 0,
-      validate: [
-        {
-          validator: Number.isInteger,
-          msg: "activeApplications should be an integer",
-        },
-        {
-          validator: function (value) {
-            return value >= 0;
-          },
-          msg: "activeApplications should greater than equal to 0",
-        },
-      ],
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      validate: {
+        isInt: true,
+        min: 0,
+      },
     },
     acceptedCandidates: {
-      type: Number,
-      default: 0,
-      validate: [
-        {
-          validator: Number.isInteger,
-          msg: "acceptedCandidates should be an integer",
-        },
-        {
-          validator: function (value) {
-            return value >= 0;
-          },
-          msg: "acceptedCandidates should greater than equal to 0",
-        },
-      ],
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      validate: {
+        isInt: true,
+        min: 0,
+      },
     },
     dateOfPosting: {
-      type: Date,
-      default: Date.now,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
     deadline: {
-      type: Date,
-      validate: [
-        {
-          validator: function (value) {
-            return this.dateOfPosting < value;
-          },
-          msg: "deadline should be greater than dateOfPosting",
-        },
-      ],
+      type: DataTypes.DATE,
+      validate: {
+        isAfter: sequelize.col("dateOfPosting"),
+      },
     },
-    skillsets: [String],
+    skillsets: {
+      type: DataTypes.JSON,
+    },
     jobType: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     duration: {
-      type: Number,
-      min: 0,
-      validate: [
-        {
-          validator: Number.isInteger,
-          msg: "Duration should be an integer",
-        },
-      ],
+      type: DataTypes.INTEGER,
+      validate: {
+        isInt: true,
+        min: 0,
+      },
     },
     salary: {
-      type: Number,
-      validate: [
-        {
-          validator: Number.isInteger,
-          msg: "Salary should be an integer",
-        },
-        {
-          validator: function (value) {
-            return value >= 0;
-          },
-          msg: "Salary should be positive",
-        },
-      ],
+      type: DataTypes.INTEGER,
+      validate: {
+        isInt: true,
+        min: 0,
+      },
     },
     rating: {
-      type: Number,
-      max: 5.0,
-      default: -1.0,
+      type: DataTypes.FLOAT,
+      defaultValue: -1.0,
       validate: {
-        validator: function (v) {
-          return v >= -1.0 && v <= 5.0;
-        },
-        msg: "Invalid rating",
+        isFloat: true,
+        min: -1.0,
+        max: 5.0,
       },
     },
   },
-  { collation: { locale: "en" } }
+  {underscored: true}
 );
+sequelize.sync();
 
-module.exports = mongoose.model("jobs", schema);
+module.exports = Job;

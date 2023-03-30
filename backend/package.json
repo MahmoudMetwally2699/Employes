@@ -22,9 +22,12 @@
     "mongoose": "^5.11.11",
     "mongoose-type-email": "^1.1.2",
     "multer": "^2.0.0-rc.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.2.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
+    "sequelize": "^6.30.0",
     "uuid": "^8.3.2"
   }
 }

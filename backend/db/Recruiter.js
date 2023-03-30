@@ -1,29 +1,37 @@
-const mongoose = require("mongoose");
+const { Sequelize, DataTypes } = require("sequelize");
+const sequelize = new Sequelize("employee", "root", "", {
+    host: "localhost",
+    dialect: "mysql",
+});
 
-let schema = new mongoose.Schema(
-  {
+const RecruiterInfo = sequelize.define("RecruiterInfo", {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true,
     },
     name: {
-      type: String,
-      required: true,
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     contactNumber: {
-      type: String,
-      validate: {
-        validator: function (v) {
-          return v !== "" ? /\+\d{1,3}\d{10}/.test(v) : true;
+        type: DataTypes.STRING,
+        validate: {
+            isValidPhoneNumber(value) {
+                if (value !== "") {
+                    if (!/\+\d{1,3}\d{10}/.test(value)) {
+                        throw new Error("Phone number is invalid!");
+                    }
+                }
+            },
         },
-        msg: "Phone number is invalid!",
-      },
     },
     bio: {
-      type: String,
+        type: DataTypes.STRING,
     },
-  },
-  { collation: { locale: "en" } }
-);
+});
 
-module.exports = mongoose.model("RecruiterInfo", schema);
+sequelize.sync();
+
+module.exports = RecruiterInfo;
