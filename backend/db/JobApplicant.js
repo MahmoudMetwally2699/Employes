@@ -1,63 +1,50 @@
-const mongoose = require("mongoose");
+const { Sequelize, DataTypes } = require("sequelize");
 
-let schema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    education: [
-      {
-        institutionName: {
-          type: String,
-          required: true,
+const sequelize = new Sequelize("employee", "root", "", {
+    host: "localhost",
+    dialect: "mysql",
+});
+const JobApplicantInfo = sequelize.define(
+    "JobApplicantInfo", {
+        userId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true,
         },
-        startYear: {
-          type: Number,
-          min: 1930,
-          max: new Date().getFullYear(),
-          required: true,
-          validate: Number.isInteger,
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
-        endYear: {
-          type: Number,
-          max: new Date().getFullYear(),
-          validate: [
-            { validator: Number.isInteger, msg: "Year should be an integer" },
-            {
-              validator: function (value) {
-                return this.startYear <= value;
-              },
-              msg: "End year should be greater than or equal to Start year",
+        education: {
+            type: DataTypes.JSON,
+            allowNull: false,
+        },
+        skills: {
+            type: DataTypes.JSON,
+            allowNull: false,
+        },
+        rating: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: -1.0,
+            validate: {
+                min: -1.0,
+                max: 5.0,
             },
-          ],
         },
-      },
-    ],
-    skills: [String],
-    rating: {
-      type: Number,
-      max: 5.0,
-      default: -1.0,
-      validate: {
-        validator: function (v) {
-          return v >= -1.0 && v <= 5.0;
+        resume: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
-        msg: "Invalid rating",
-      },
-    },
-    resume: {
-      type: String,
-    },
-    profile: {
-      type: String,
-    },
-  },
-  { collation: { locale: "en" } }
+        profile: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+    }, {
+        tableName: "job_applicant_info",
+    }
 );
+sequelize.sync();
 
-module.exports = mongoose.model("JobApplicantInfo", schema);
+module.exports = JobApplicantInfo;
