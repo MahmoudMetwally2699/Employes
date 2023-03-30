@@ -1,35 +1,46 @@
-const mongoose = require("mongoose");
+const {Sequelize, DataTypes} = require("sequelize");
 
-let schema = new mongoose.Schema(
+const sequelize = new Sequelize("employee", "root", "", {
+  host: "localhost",
+  dialect: "mysql",
+});
+
+const Rating = sequelize.define(
+  "Rating",
   {
     category: {
-      type: String,
-      enum: ["job", "applicant"],
-      required: true,
+      type: DataTypes.ENUM("job", "applicant"),
+      allowNull: false,
     },
-    receiverId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
+    receiver_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
-    senderId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
+    sender_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     rating: {
-      type: Number,
-      max: 5.0,
-      default: -1.0,
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+      defaultValue: -1.0,
       validate: {
-        validator: function (v) {
-          return v >= -1.0 && v <= 5.0;
-        },
-        msg: "Invalid rating",
+        min: -1.0,
+        max: 5.0,
       },
     },
   },
-  { collation: { locale: "en" } }
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ["category", "receiver_id", "sender_id"],
+      },
+    ],
+    underscored: true,
+  }
 );
 
-schema.index({ category: 1, receiverId: 1, senderId: 1 }, { unique: true });
+sequelize.sync();
 
-module.exports = mongoose.model("ratings", schema);
+module.exports = Rating;

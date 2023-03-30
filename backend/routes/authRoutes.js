@@ -20,23 +20,25 @@ router.post("/signup", (req, res) => {
   user
     .save()
     .then(() => {
-      const userDetails =
-        user.type == "recruiter"
-          ? new Recruiter({
-              userId: user._id,
-              name: data.name,
-              contactNumber: data.contactNumber,
-              bio: data.bio,
-            })
-          : new JobApplicant({
-              userId: user._id,
-              name: data.name,
-              education: data.education,
-              skills: data.skills,
-              rating: data.rating,
-              resume: data.resume,
-              profile: data.profile,
-            });
+      let userDetails;
+      if (user.type == "applicant") {
+        userDetails = new JobApplicant({
+          userId: user._id,
+          name: data.name,
+          education: data.education,
+          skills: data.skills,
+          rating: data.rating,
+          resume: data.resume,
+          profile: data.profile,
+        });
+      } else {
+        userDetails = new Recruiter({
+          userId: user._id,
+          name: data.name,
+          contactNumber: data.contactNumber,
+          bio: data.bio,
+        });
+      }
 
       userDetails
         .save()
@@ -49,15 +51,16 @@ router.post("/signup", (req, res) => {
           });
         })
         .catch((err) => {
-          user
-            .delete()
+          console.log(err);
+          User.destroy({
+            where: { id: user.id },
+          })
             .then(() => {
               res.status(400).json(err);
             })
             .catch((err) => {
               res.json({ error: err });
             });
-          err;
         });
     })
     .catch((err) => {
