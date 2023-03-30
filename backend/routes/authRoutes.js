@@ -79,7 +79,7 @@ router.post("/login", (req, res, next) => {
       }
       // Token
       const token = jwt.sign({ _id: user._id }, authKeys.jwtSecretKey);
-      return res.json({
+      res.status(200).res.json({
         token: token,
         type: user.type,
       });
