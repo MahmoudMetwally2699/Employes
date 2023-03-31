@@ -159,18 +159,38 @@ router.get("/jobs", jwtAuth, (req, res) => {
 
     console.log(findParams);
     console.log(sortParams);
-
-    Job.findAll({
-            include: [{
-                model: Recruiter,
+    let arr = [{
+            $lookup: {
+                from: "recruiterinfos",
+                localField: "userId",
+                foreignField: "userId",
                 as: "recruiter",
-                required: true,
-            }, ],
-            where: findParams,
-            order: Object.keys(sortParams).map((key) => [key, sortParams[key]]),
-        })
+            },
+        },
+        { $unwind: "$recruiter" },
+        { $match: findParams },
+    ];
+    console.log(Object.keys(sortParams).length > 0);
+    if (Object.keys(sortParams).length > 0) {
+        arr = [{
+                $lookup: {
+                    from: "recruiterinfos",
+                    localField: "userId",
+                    foreignField: "userId",
+                    as: "recruiter",
+                },
+            },
+            { $unwind: "$recruiter" },
+            { $match: findParams },
+            {
+                $sort: sortParams,
+            },
+        ];
+    }
+    console.log(arr);
+    Job.aggregate(arr)
         .then((posts) => {
-            if (posts.length === 0) {
+            if (posts == null) {
                 res.status(404).json({
                     message: "No job found",
                 });
