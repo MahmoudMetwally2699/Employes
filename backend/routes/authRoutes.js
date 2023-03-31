@@ -9,116 +9,75 @@ const Recruiter = require("../db/Recruiter");
 
 const router = express.Router();
 
-router.post("/signup", (req, res) => {
-    const data = req.body;
-    let user = new User({
-        email: data.email,
-        password: data.password,
-        type: data.type,
+router.post("/signup", async (req, res) => {
+  const data = req.body;
+
+  try {
+    const user = await User.create({
+      email: data.email,
+      password: data.password,
+      type: data.type,
     });
 
-    user
-        .save()
-        .then(() => {
-            let userDetails;
-            if (user.type == "applicant") {
-                userDetails = new JobApplicant({
-                    userId: user.id,
-                    name: data.name,
-                    education: data.education,
-                    skills: data.skills,
-                    rating: data.rating,
-                    resume: data.resume,
-                    profile: data.profile,
-                });
-            } else {
-                userDetails = new Recruiter({
-                    userId: user.id,
-                    name: data.name,
-                    contactNumber: data.contactNumber,
-                    bio: data.bio,
-                });
-            }
+    let userDetails;
 
-            userDetails
-                .save()
-                .then(() => {
-                    const userDetails =
-                        user.type == "recruiter" ?
-                        new Recruiter({
-                            userId: user.id,
-                            name: data.name,
-                            contactNumber: data.contactNumber,
-                            bio: data.bio,
-                        }) :
-                        new JobApplicant({
-                            userId: user.id,
-                            name: data.name,
-                            education: data.education,
-                            skills: data.skills,
-                            rating: data.rating,
-                            resume: data.resume,
-                            profile: data.profile,
-                        });
+    if (user.type === "applicant") {
+      userDetails = await JobApplicant.create({
+        userId: user.id,
+        name: data.name,
+        education: data.education,
+        skills: data.skills,
+        rating: data.rating,
+        resume: data.resume,
+        profile: data.profile,
+      });
+    } else {
+      userDetails = await Recruiter.create({
+        userId: user.id,
+        name: data.name,
+        contactNumber: data.contactNumber,
+        bio: data.bio,
+      });
+    }
 
-                    userDetails
-                        .save()
-                        .then(() => {
-                            // Token
-                            const token = jwt.sign({ id: user.id }, authKeys.jwtSecretKey);
-                            res.json({
-                                token: token,
-                                type: user.type,
-                            });
-                        })
-                        .catch((err) => {
-                            console.log(err);
-                            user
-                                .destroy({
-                                    where: { id: user.id },
-                                })
-                                .then(() => {
-                                    res.status(400).json(err);
-                                })
-                                .catch((err) => {
-                                    res.json({ error: err });
-                                });
-                        });
-                })
-                .catch((err) => {
-                    console.log(err);
-                    User.destroy({
-                            where: { id: user.id },
-                        })
-                        .then(() => {
-                            res.status(400).json(err);
-                        })
-                        .catch((err) => {
-                            res.json({ error: err });
-                        });
-                });
-        })
-        .catch((err) => {
-            res.status(400).json(err);
-        });
+    const token = jwt.sign({ id: user.id }, authKeys.jwtSecretKey);
+
+    res.json({
+      token: token,
+      type: user.type,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(err);
+  }
 });
 
 router.post("/login", (req, res, next) => {
-    passport.authenticate("local", { session: false }, function(err, user, info) {
+  passport.authenticate(
+    "local",
+    { session: false },
+    async function (err, user, info) {
+      try {
         if (err) {
-            return next(err);
+          return next(err);
         }
         if (!user) {
-            res.status(401).json(info);
-            return;
+          res.status(401).json(info);
+          return;
         }
-        // Token
+
         const token = jwt.sign({ id: user.id }, authKeys.jwtSecretKey);
+
         res.json({
-            token: token,
-            type: user.type,
+          token: token,
+          type: user.type,
         });
-    })(req, res, next);
+      } catch (err) {
+        console.log(err);
+        res.status(400).json(err);
+      }
+    }
+  )(req, res, next);
 });
 
 module.exports = router;
