@@ -20,16 +20,10 @@ router.post("/signup", (req, res) => {
     user
         .save()
         .then(() => {
-            const userDetails =
-                user.type == "recruiter" ?
-                new Recruiter({
-                    userId: user.id,
-                    name: data.name,
-                    contactNumber: data.contactNumber,
-                    bio: data.bio,
-                }) :
-                new JobApplicant({
-                    userId: user.id,
+            let userDetails;
+            if (user.type == "applicant") {
+                userDetails = new JobApplicant({
+                    userId: user._id,
                     name: data.name,
                     education: data.education,
                     skills: data.skills,
@@ -37,23 +31,63 @@ router.post("/signup", (req, res) => {
                     resume: data.resume,
                     profile: data.profile,
                 });
+            } else {
+                userDetails = new Recruiter({
+                    userId: user._id,
+                    name: data.name,
+                    contactNumber: data.contactNumber,
+                    bio: data.bio,
+                });
+            }
 
             userDetails
                 .save()
                 .then(() => {
-                    // Token
-                    const token = jwt.sign({ id: user.id },
-                        authKeys.jwtSecretKey
-                    );
-                    res.json({
-                        token: token,
-                        type: user.type,
-                    });
+                    const userDetails =
+                        user.type == "recruiter" ?
+                        new Recruiter({
+                            userId: user.id,
+                            name: data.name,
+                            contactNumber: data.contactNumber,
+                            bio: data.bio,
+                        }) :
+                        new JobApplicant({
+                            userId: user.id,
+                            name: data.name,
+                            education: data.education,
+                            skills: data.skills,
+                            rating: data.rating,
+                            resume: data.resume,
+                            profile: data.profile,
+                        });
+
+                    userDetails
+                        .save()
+                        .then(() => {
+                            // Token
+                            const token = jwt.sign({ id: user.id }, authKeys.jwtSecretKey);
+                            res.json({
+                                token: token,
+                                type: user.type,
+                            });
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            user
+                                .destroy({
+                                    where: { id: user.id },
+                                })
+                                .then(() => {
+                                    res.status(400).json(err);
+                                })
+                                .catch((err) => {
+                                    res.json({ error: err });
+                                });
+                        });
                 })
                 .catch((err) => {
                     console.log(err);
-                    user
-                        .destroy({
+                    User.destroy({
                             where: { id: user.id },
                         })
                         .then(() => {
@@ -70,24 +104,21 @@ router.post("/signup", (req, res) => {
 });
 
 router.post("/login", (req, res, next) => {
-    passport.authenticate(
-        "local", { session: false },
-        function(err, user, info) {
-            if (err) {
-                return next(err);
-            }
-            if (!user) {
-                res.status(401).json(info);
-                return;
-            }
-            // Token
-            const token = jwt.sign({ id: user.id }, authKeys.jwtSecretKey);
-            res.json({
-                token: token,
-                type: user.type,
-            });
+    passport.authenticate("local", { session: false }, function(err, user, info) {
+        if (err) {
+            return next(err);
         }
-    )(req, res, next);
+        if (!user) {
+            res.status(401).json(info);
+            return;
+        }
+        // Token
+        const token = jwt.sign({ id: user.id }, authKeys.jwtSecretKey);
+        res.json({
+            token: token,
+            type: user.type,
+        });
+    })(req, res, next);
 });
 
 module.exports = router;
