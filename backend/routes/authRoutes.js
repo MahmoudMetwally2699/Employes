@@ -20,10 +20,16 @@ router.post("/signup", (req, res) => {
     user
         .save()
         .then(() => {
-            let userDetails;
-            if (user.type == "applicant") {
-                userDetails = new JobApplicant({
-                    userId: user._id,
+            const userDetails =
+                user.type == "recruiter" ?
+                new Recruiter({
+                    userId: user.id,
+                    name: data.name,
+                    contactNumber: data.contactNumber,
+                    bio: data.bio,
+                }) :
+                new JobApplicant({
+                    userId: user.id,
                     name: data.name,
                     education: data.education,
                     skills: data.skills,
@@ -31,20 +37,14 @@ router.post("/signup", (req, res) => {
                     resume: data.resume,
                     profile: data.profile,
                 });
-            } else {
-                userDetails = new Recruiter({
-                    userId: user._id,
-                    name: data.name,
-                    contactNumber: data.contactNumber,
-                    bio: data.bio,
-                });
-            }
 
             userDetails
                 .save()
                 .then(() => {
                     // Token
-                    const token = jwt.sign({ _id: user._id }, authKeys.jwtSecretKey);
+                    const token = jwt.sign({ id: user.id },
+                        authKeys.jwtSecretKey
+                    );
                     res.json({
                         token: token,
                         type: user.type,
@@ -52,7 +52,8 @@ router.post("/signup", (req, res) => {
                 })
                 .catch((err) => {
                     console.log(err);
-                    User.destroy({
+                    user
+                        .destroy({
                             where: { id: user.id },
                         })
                         .then(() => {
@@ -80,7 +81,7 @@ router.post("/login", (req, res, next) => {
                 return;
             }
             // Token
-            const token = jwt.sign({ _id: user._id }, authKeys.jwtSecretKey);
+            const token = jwt.sign({ id: user.id }, authKeys.jwtSecretKey);
             res.json({
                 token: token,
                 type: user.type,

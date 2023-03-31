@@ -55,8 +55,8 @@ passport.use(
             secretOrKey: authKeys.jwtSecretKey,
         },
         (jwt_payload, done) => {
-            console.log(jwt_payload._id);
-            User.findByPk(jwt_payload._id)
+            console.log(jwt_payload);
+            User.findByPk(jwt_payload.id)
                 .then((user) => {
                     if (!user) {
                         return done(null, false, {

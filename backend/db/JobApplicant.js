@@ -42,7 +42,7 @@ const JobApplicantInfo = sequelize.define(
             allowNull: true,
         },
     }, {
-        tableName: "job_applicant_info",
+        tableName: "JobApplicantInfo",
     }
 );
 sequelize.sync();
