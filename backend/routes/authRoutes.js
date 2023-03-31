@@ -23,7 +23,7 @@ router.post("/signup", (req, res) => {
             let userDetails;
             if (user.type == "applicant") {
                 userDetails = new JobApplicant({
-                    userId: user._id,
+                    userId: user.id,
                     name: data.name,
                     education: data.education,
                     skills: data.skills,
@@ -33,7 +33,7 @@ router.post("/signup", (req, res) => {
                 });
             } else {
                 userDetails = new Recruiter({
-                    userId: user._id,
+                    userId: user.id,
                     name: data.name,
                     contactNumber: data.contactNumber,
                     bio: data.bio,
