@@ -50,7 +50,6 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
 }));
-
 const JobTile = (props) => {
   const classes = useStyles();
   const { job } = props;
@@ -58,18 +57,16 @@ const JobTile = (props) => {
 
   const [open, setOpen] = useState(false);
   const [sop, setSop] = useState("");
-
   const handleClose = () => {
     setOpen(false);
     setSop("");
   };
 
   const handleApply = () => {
-    console.log(job._id);
-    console.log(sop);
+   
     axios
       .post(
-        `${apiList.jobs}/${job._id}/applications`,
+        `${apiList.jobs}/${job.jid}/applications`,
         {
           sop: sop,
         },
@@ -204,7 +201,7 @@ const FilterPopup = (props) => {
               item
               xs={9}
               justify="space-around"
-              // alignItems="center"
+            // alignItems="center"
             >
               <Grid item>
                 <FormControlLabel
@@ -591,7 +588,6 @@ const Home = (props) => {
     });
     searchParams = [...searchParams, ...asc, ...desc];
     const queryString = searchParams.join("&");
-    console.log(queryString);
     let address = apiList.jobs;
     if (queryString !== "") {
       address = `${address}?${queryString}`;
@@ -604,12 +600,26 @@ const Home = (props) => {
         },
       })
       .then((response) => {
-        console.log(response.data);
+        
+        // })
+        // let temp=[]
+        // response.forEach((obj)=>temp.push(obj.rid))
+        // console.log("TEMP:",temp)
+        // axios
+        // .get(`${apiList.user}/${response.data.rid}`, {
+        //   headers: {
+        //     Authorization: `Bearer ${localStorage.getItem("token")}`,
+        //   },
+        // }).then((response)=>{
+        //   console.log("Response for Recruiter:",response)
+        // })
         setJobs(
           response.data.filter((obj) => {
             const today = new Date();
             const deadline = new Date(obj.deadline);
+
             return deadline > today;
+
           })
         );
       })

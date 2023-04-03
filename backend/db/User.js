@@ -1,65 +1,55 @@
-const { Sequelize, DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
+const {DataTypes} = require("sequelize");
 
-const sequelize = new Sequelize("employee", "root", "", {
-    host: "localhost",
-    dialect: "mysql",
-});
+const sequelize = require("./Connection");
 
 const User = sequelize.define(
-    "UserAuth", {
-        email: {
-            type: DataTypes.STRING,
-            unique: true,
-            allowNull: false,
-            validate: {
-                isEmail: true,
-            },
+  "users",
+  {
+    uid: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+      primaryKey: true,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        typeValidator: (value) => {
+          const enums = ["recruiter", "applicant"];
+          if (!enums.includes(value)) {
+            throw new Error("Not a valid User type");
+          }
         },
-        password: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        type: {
-            type: DataTypes.ENUM("recruiter", "applicant"),
-            allowNull: false,
-        },
-    }, {
-        timestamps: false,
-        hooks: {
-            beforeCreate: async(user) => {
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash(user.password, salt);
-                user.password = hashedPassword;
-            },
-        },
-    }
+      },
+    },
+    created_on: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
+    },
+  },
+  {
+    hooks: {
+      beforeCreate: async (user) => {
+        if (user.password) {
+          const salt = await bcrypt.genSaltSync(10, "a");
+          user.password = bcrypt.hashSync(user.password, salt);
+        }
+      },
+    },
+    timestamps: false,
+  }
 );
-
-User.prototype.login = async function(password) {
-    const isMatch = await bcrypt.compare(password, this.password);
-    if (isMatch) {
-        return true;
-    }
-    return false;
-};
-
-sequelize
-    .authenticate()
-    .then(() => {
-        console.log("Connection has been established successfully.");
-    })
-    .catch((error) => {
-        console.error("Unable to connect to the database:", error);
-    });
-
-sequelize
-    .sync()
-    .then(() => {
-        console.log("All models were synchronized successfully.");
-    })
-    .catch((error) => {
-        console.error("Unable to synchronize the database:", error);
-    });
 
 module.exports = User;

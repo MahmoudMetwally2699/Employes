@@ -1,19 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const {Sequelize} = require("sequelize");
 const passportConfig = require("./lib/passportConfig");
+const app = express();
 const cors = require("cors");
 const fs = require("fs");
-
-const sequelize = new Sequelize("employee", "root", "", {
-  host: "localhost",
-  dialect: "mysql",
-});
-// Test the connection
-sequelize
-  .authenticate()
-  .then(() => console.log("Connected to DB"))
-  .catch((err) => console.log(err));
 
 // initialising directories
 if (!fs.existsSync("./public")) {
@@ -26,8 +16,7 @@ if (!fs.existsSync("./public/profile")) {
   fs.mkdirSync("./public/profile");
 }
 
-const app = express();
-const port = 4444;
+const port = 5000;
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
@@ -45,4 +34,11 @@ app.use("/host", require("./routes/downloadRoutes"));
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}!`);
+});
+
+
+
+
+app.get("/", (req, res) => {
+  res.status(200).send("Engine Started, Ready to take off!");
 });

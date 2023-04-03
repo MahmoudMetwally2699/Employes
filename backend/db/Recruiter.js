@@ -1,37 +1,44 @@
-const { Sequelize, DataTypes } = require("sequelize");
-const sequelize = new Sequelize("employee", "root", "", {
-    host: "localhost",
-    dialect: "mysql",
-});
+const {DataTypes} = require("sequelize");
 
-const RecruiterInfo = sequelize.define("RecruiterInfo", {
-    userId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        autoIncrement: true,
+const sequelize = require("./Connection");
+const Job = require("./Job");
+const Recruiter = sequelize.define(
+  "recruiter",
+  {
+    rid: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+      primaryKey: true,
     },
     name: {
-        type: DataTypes.STRING,
-        allowNull: false,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     contactNumber: {
-        type: DataTypes.STRING,
-        validate: {
-            isValidPhoneNumber(value) {
-                if (value !== "") {
-                    if (!/\+\d{1,3}\d{10}/.test(value)) {
-                        throw new Error("Phone number is invalid!");
-                    }
-                }
-            },
+      type: DataTypes.TEXT,
+      allowNull: false,
+      unique: true,
+      validate: {
+        validator: function (v) {
+          if (v !== "") {
+            const regex = /\+\d{1,3}\d{10}/.test(v);
+            if (!regex) {
+              throw new Error("Phone number is invalid");
+            } else return true;
+          }
         },
+      },
     },
+
     bio: {
-        type: DataTypes.STRING,
+      type: DataTypes.TEXT,
     },
-});
+  },
+  {
+    timestamps: false,
+    freezeTableName: true,
+  }
+);
 
-sequelize.sync();
-
-module.exports = RecruiterInfo;
+module.exports = Recruiter;

@@ -5,9 +5,10 @@ import {
   Button,
   makeStyles,
 } from "@material-ui/core";
-import { useHistory } from "react-router-dom";
+import * as colors from "@material-ui/core/colors";
+import {useHistory} from "react-router-dom";
 
-import isAuth, { userType } from "../lib/isAuth";
+import isAuth, {userType} from "../lib/isAuth";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,6 +19,24 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
+    fontWeight: "bold",
+    fontSize: 24,
+  },
+  Toolbar: {
+    boxShadow: "0px 0px",
+    backgroundColor: colors.cyan[50],
+    color: colors.blueGrey[700],
+  },
+  button: {
+    fontFamily: "Montserrat",
+    fontSize: 14,
+    fontWeightLight: 300,
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+  },
+  noBox: {
+    boxShadow: "0px 0px",
+    backgroundColor: "#fff",
   },
 }));
 
@@ -31,63 +50,75 @@ const Navbar = (props) => {
   };
 
   return (
-    <AppBar position="fixed">
-      <Toolbar>
+    <AppBar position="fixed" className={classes.noBox}>
+      <Toolbar className={classes.Toolbar}>
         <Typography variant="h6" className={classes.title}>
-          Job Portal
-        </Typography>
+          Wazafni{" "}
+        </Typography>{" "}
         {isAuth() ? (
           userType() === "recruiter" ? (
             <>
-              <Button color="inherit" onClick={() => handleClick("/home")}>
-                Home
-              </Button>
+              <Button
+                color="inherit"
+                onClick={() => handleClick("/home")}
+                className={classes.button}
+              >
+                Home{" "}
+              </Button>{" "}
               <Button color="inherit" onClick={() => handleClick("/addjob")}>
-                Add Jobs
-              </Button>
+                Add Jobs{" "}
+              </Button>{" "}
               <Button color="inherit" onClick={() => handleClick("/myjobs")}>
-                My Jobs
-              </Button>
+                My Jobs{" "}
+              </Button>{" "}
               <Button color="inherit" onClick={() => handleClick("/employees")}>
-                Employees
-              </Button>
+                Employees{" "}
+              </Button>{" "}
               <Button color="inherit" onClick={() => handleClick("/profile")}>
-                Profile
-              </Button>
+                Profile{" "}
+              </Button>{" "}
               <Button color="inherit" onClick={() => handleClick("/logout")}>
-                Logout
-              </Button>
+                Logout{" "}
+              </Button>{" "}
             </>
           ) : (
             <>
               <Button color="inherit" onClick={() => handleClick("/home")}>
-                Home
-              </Button>
+                Home{" "}
+              </Button>{" "}
               <Button
                 color="inherit"
                 onClick={() => handleClick("/applications")}
               >
-                Applications
-              </Button>
+                Applications{" "}
+              </Button>{" "}
               <Button color="inherit" onClick={() => handleClick("/profile")}>
-                Profile
-              </Button>
+                Profile{" "}
+              </Button>{" "}
               <Button color="inherit" onClick={() => handleClick("/logout")}>
-                Logout
-              </Button>
+                Logout{" "}
+              </Button>{" "}
             </>
           )
         ) : (
           <>
-            <Button color="inherit" onClick={() => handleClick("/login")}>
-              Login
-            </Button>
-            <Button color="inherit" onClick={() => handleClick("/signup")}>
-              Signup
-            </Button>
+            <Button
+              color="inherit"
+              onClick={() => handleClick("/login")}
+              className={classes.button}
+            >
+              Login{" "}
+            </Button>{" "}
+            <Button
+              color="inherit"
+              onClick={() => handleClick("/signup")}
+              className={classes.button}
+            >
+              Signup{" "}
+            </Button>{" "}
           </>
-        )}
-      </Toolbar>
+        )}{" "}
+      </Toolbar>{" "}
     </AppBar>
   );
 };

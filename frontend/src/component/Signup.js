@@ -28,9 +28,11 @@ import isAuth from "../lib/isAuth";
 const useStyles = makeStyles((theme) => ({
   body: {
     padding: "60px 60px",
+    margin: "10px 0px",
+    fontFamily: "Roboto",
   },
   inputBox: {
-    width: "400px",
+    width: "600px",
   },
   submitButton: {
     width: "400px",
@@ -198,18 +200,22 @@ const Login = (props) => {
       }
     });
 
-    console.log(education);
+    education
+      .filter((obj) => obj.institutionName.trim() !== "")
+      .map((obj) => {
+        if (obj["endYear"] === "") {
+          delete obj["endYear"];
+        }
+        return obj;
+      });
+    for (var i = 0; i < education.length; i++) {
+      education[i].startYear = +education[i].startYear;
+      education[i].endYear = +education[i].endYear;
+    }
 
     let updatedDetails = {
       ...signupDetails,
-      education: education
-        .filter((obj) => obj.institutionName.trim() !== "")
-        .map((obj) => {
-          if (obj["endYear"] === "") {
-            delete obj["endYear"];
-          }
-          return obj;
-        }),
+      education: education,
     };
 
     setSignupDetails(updatedDetails);
@@ -286,7 +292,6 @@ const Login = (props) => {
       return tmpErrorHandler[obj].error;
     });
 
-    console.log(updatedDetails);
 
     if (verified) {
       axios
