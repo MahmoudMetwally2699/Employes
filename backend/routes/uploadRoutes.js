@@ -10,20 +10,20 @@ const pipeline = promisify(require("stream").pipeline);
 const router = express.Router();
 
 const upload = multer();
-function bufferToStream(binary) {
 
+function bufferToStream(binary) {
   const readableInstanceStream = new Readable({
     read() {
       this.push(binary);
       this.push(null);
-    }
+    },
   });
 
   return readableInstanceStream;
 }
 router.post("/resume", upload.single("file"), (req, res) => {
-  const { file } = req;
-  console.log("FILENAME:",file)
+  const {file} = req;
+  console.log("FILENAME:", file);
 
   if (path.extname(file.originalname) != ".pdf") {
     res.status(400).json({
@@ -43,7 +43,7 @@ router.post("/resume", upload.single("file"), (req, res) => {
         });
       })
       .catch((err) => {
-        console.log("Error while uploading:",err)
+        console.log("Error while uploading:", err);
         res.status(400).json({
           message: "Error while uploading",
         });
@@ -52,7 +52,7 @@ router.post("/resume", upload.single("file"), (req, res) => {
 });
 
 router.post("/profile", upload.single("file"), (req, res) => {
-  const { file } = req;
+  const {file} = req;
   if (
     path.extname(file.originalname) != ".jpg" &&
     path.extname(file.originalname) != ".png"
@@ -64,7 +64,7 @@ router.post("/profile", upload.single("file"), (req, res) => {
     const filename = `${uuidv4()}${path.extname(file.originalname)}`;
 
     pipeline(
-     bufferToStream(file.buffer),
+      bufferToStream(file.buffer),
       fs.createWriteStream(`${__dirname}/../public/profile/${filename}`)
     )
       .then(() => {

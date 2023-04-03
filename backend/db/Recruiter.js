@@ -38,7 +38,7 @@ const Recruiter = sequelize.define(
   },
   {
     timestamps: false,
-    freezeTableName: true
+    freezeTableName: true,
   }
 );
 

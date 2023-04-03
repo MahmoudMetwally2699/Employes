@@ -12,95 +12,69 @@ const router = express.Router();
 
 router.post("/signup", (req, res) => {
   const data = req.body;
-  let user = new User({
+  const user_data = {
+    uid: uuid.v4(),
     email: data.email,
     password: data.password,
     type: data.type,
-  });
-
-  user
-    .save()
+  };
+  User.create(user_data)
     .then(() => {
-      let userDetails;
-      if (user.type == "applicant") {
-        userDetails = new JobApplicant({
-          userId: user.id,
+      if (data.type == "recruiter") {
+        Recruiter.create({
+          rid: user_data.uid,
+          name: data.name,
+          contactNumber: data.contactNumber,
+          bio: data.bio,
+        })
+          .then(() => {
+            // Token
+            const token = jwt.sign({_id: user_data.uid}, authKeys.jwtSecretKey);
+            res.json({
+              token: token,
+              type: user_data.type,
+            });
+          })
+          .catch((err) => {
+            User.destroy({where: {uid: user_data.uid}})
+              .then(() => {
+                res.status(400).json(err);
+              })
+              .catch((err) => {
+                res.json({error: err});
+              });
+          });
+      } else {
+        JobApplicant.create({
+          aid: user_data.uid,
           name: data.name,
           education: data.education,
           skills: data.skills,
           rating: data.rating,
           resume: data.resume,
           profile: data.profile,
-        });
-      } else {
-        userDetails = new Recruiter({
-          userId: user.id,
-          name: data.name,
-          contactNumber: data.contactNumber,
-          bio: data.bio,
-        });
-      }
-
-      userDetails
-        .save()
-        .then(() => {
-          const userDetails =
-            user.type == "recruiter"
-              ? new Recruiter({
-                  userId: user.id,
-                  name: data.name,
-                  contactNumber: data.contactNumber,
-                  bio: data.bio,
-                })
-              : new JobApplicant({
-                  userId: user.id,
-                  name: data.name,
-                  education: data.education,
-                  skills: data.skills,
-                  rating: data.rating,
-                  resume: data.resume,
-                  profile: data.profile,
-                });
-
-          userDetails
-            .save()
-            .then(() => {
-              // Token
-              const token = jwt.sign({id: user.id}, authKeys.jwtSecretKey);
-              res.json({
-                token: token,
-                type: user.type,
-              });
-            })
-            .catch((err) => {
-              console.log(err);
-              user
-                .destroy({
-                  where: {id: user.id},
-                })
-                .then(() => {
-                  res.status(400).json(err);
-                })
-                .catch((err) => {
-                  res.json({error: err});
-                });
-            });
         })
-        .catch((err) => {
-          console.log(err);
-          User.destroy({
-            where: {id: user.id},
-          })
-            .then(() => {
-              res.status(400).json(err);
-            })
-            .catch((err) => {
-              res.json({error: err});
+          .then(() => {
+            // Token
+            const token = jwt.sign({_id: user_data.uid}, authKeys.jwtSecretKey);
+            res.json({
+              token: token,
+              type: user_data.type,
             });
-        });
+          })
+          .catch((err) => {
+            User.destroy({where: {uid: user_data.uid}})
+              .then(() => {
+                res.status(400).json(err);
+              })
+              .catch((err) => {
+                res.json({error: err});
+              });
+          });
+      }
     })
-    .catch((err) => {
-      res.status(400).json(err);
+    .finally(() => {
+      console.log("Done");
     });
 });
 
@@ -114,7 +88,7 @@ router.post("/login", (req, res, next) => {
       return;
     }
     // Token
-    const token = jwt.sign({id: user.id}, authKeys.jwtSecretKey);
+    const token = jwt.sign({_id: user.uid}, authKeys.jwtSecretKey);
     res.json({
       token: token,
       type: user.type,
