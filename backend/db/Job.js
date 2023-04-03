@@ -1,3 +1,4 @@
+const Sequelize = require("sequelize");
 const sequelize = require("./Connection");
 const {DataTypes} = require("sequelize");
 const Job = sequelize.define(
@@ -44,6 +45,10 @@ const Job = sequelize.define(
         isInt: {
           msg: "activeApplications should be an integer",
         },
+        // min: {
+        //     args: 0,
+        //     msg: "activeApplications should greater than 0",
+        // },
       },
     },
     acceptedCandidates: {
@@ -53,6 +58,10 @@ const Job = sequelize.define(
         isInt: {
           msg: "acceptedCandidates should be an integer",
         },
+        // min: {
+        //     args: 0,
+        //     msg: "acceptedCandidates should greater than 0",
+        // },
       },
     },
     dateOfPosting: {
@@ -61,6 +70,14 @@ const Job = sequelize.define(
     },
     deadline: {
       type: DataTypes.DATE,
+      // validate:
+      //     {
+      //         validator: function (value) {
+      //             const dop = new Date(this.dateOfPosting)
+      //             if (dop < value)
+      //                 throw new Error("deadline should be greater than dateOfPosting")
+      //         },
+      //     },
     },
     skillsets: {
       type: DataTypes.TEXT,
@@ -95,6 +112,10 @@ const Job = sequelize.define(
         isInt: {
           msg: "salary should be an integer",
         },
+        //    min:{
+        //        args:0,
+        //        msg:"salary should be greater than 0"
+        //    }
       },
     },
     rating: {
@@ -125,4 +146,5 @@ const Job = sequelize.define(
     timestamps: false,
   }
 );
+// Job.sync().then(() => console.log("Table Jobs Created"))
 module.exports = Job;

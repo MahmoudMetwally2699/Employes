@@ -61,4 +61,5 @@ const JobApplicant = sequelize.define(
     timestamps: false,
   }
 );
+// JobApplicant.sync().then(() => console.log("Table Job Applicant Created"));
 module.exports = JobApplicant;

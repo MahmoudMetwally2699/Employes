@@ -1,3 +1,5 @@
+const bcrypt = require("bcrypt");
+const Sequelize = require("sequelize");
 const sequelize = require("./Connection");
 const {DataTypes} = require("sequelize");
 
@@ -37,6 +39,9 @@ const Applications = sequelize.define(
     },
     dateOfJoining: {
       type: DataTypes.DATE,
+      // validate:{
+      //     validator : (value)=>{}
+      // }
     },
     sop: {
       type: DataTypes.STRING,

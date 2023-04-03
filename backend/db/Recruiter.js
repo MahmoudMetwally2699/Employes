@@ -1,3 +1,4 @@
+const Sequelize = require("sequelize");
 const {DataTypes} = require("sequelize");
 
 const sequelize = require("./Connection");
@@ -37,8 +38,11 @@ const Recruiter = sequelize.define(
   },
   {
     timestamps: false,
-    freezeTableName: true,
+    freezeTableName: true
   }
 );
+
+
+// Recruiter.sync().then(() => console.log("Table Recruiter Created"));
 
 module.exports = Recruiter;

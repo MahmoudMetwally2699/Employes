@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const Sequelize = require("sequelize");
 const {DataTypes} = require("sequelize");
 
 const sequelize = require("./Connection");
@@ -51,5 +52,6 @@ const User = sequelize.define(
     timestamps: false,
   }
 );
+// User.sync().then(() => console.log("Table Users Created"));
 
 module.exports = User;
