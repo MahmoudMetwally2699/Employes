@@ -7,7 +7,7 @@ import {
 } from "@material-ui/core";
 import * as colors from "@material-ui/core/colors";
 import {useHistory} from "react-router-dom";
-
+import "../App.css";
 import isAuth, {userType} from "../lib/isAuth";
 
 const useStyles = makeStyles((theme) => ({
@@ -41,86 +41,89 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Navbar = (props) => {
-  const classes = useStyles();
-  let history = useHistory();
+    const classes = useStyles();
+    let history = useHistory();
 
-  const handleClick = (location) => {
-    console.log(location);
-    history.push(location);
-  };
+    const handleClick = (location) => {
+      console.log(location);
+      history.push(location);
+    };
 
-  return (
-    <AppBar position="fixed" className={classes.noBox}>
-      <Toolbar className={classes.Toolbar}>
-        <Typography variant="h6" className={classes.title}>
-          Wazafni{" "}
-        </Typography>{" "}
-        {isAuth() ? (
-          userType() === "recruiter" ? (
-            <>
-              <Button
-                color="inherit"
-                onClick={() => handleClick("/home")}
-                className={classes.button}
-              >
-                Home{" "}
-              </Button>{" "}
-              <Button color="inherit" onClick={() => handleClick("/addjob")}>
-                Add Jobs{" "}
-              </Button>{" "}
-              <Button color="inherit" onClick={() => handleClick("/myjobs")}>
-                My Jobs{" "}
-              </Button>{" "}
-              <Button color="inherit" onClick={() => handleClick("/employees")}>
-                Employees{" "}
-              </Button>{" "}
-              <Button color="inherit" onClick={() => handleClick("/profile")}>
-                Profile{" "}
-              </Button>{" "}
-              <Button color="inherit" onClick={() => handleClick("/logout")}>
-                Logout{" "}
-              </Button>{" "}
-            </>
+    return (
+      <AppBar position="fixed" className={classes.noBox}>
+        <Toolbar className="Toolbar">
+          <Typography variant="h6" className={classes.title}>
+            Wazafni{" "}
+          </Typography>{" "}
+          {isAuth() ? (
+            userType() === "recruiter" ? (
+              <>
+                <Button
+                  color="inherit"
+                  onClick={() => handleClick("/home")}
+                  className={classes.button}
+                >
+                  Home{" "}
+                </Button>{" "}
+                <Button color="inherit" onClick={() => handleClick("/addjob")}>
+                  Add Jobs{" "}
+                </Button>{" "}
+                <Button color="inherit" onClick={() => handleClick("/myjobs")}>
+                  My Jobs{" "}
+                </Button>{" "}
+                <Button
+                  color="inherit"
+                  onClick={() => handleClick("/employees")}
+                >
+                  Employees{" "}
+                </Button>{" "}
+                <Button color="inherit" onClick={() => handleClick("/profile")}>
+                  Profile{" "}
+                </Button>{" "}
+                <Button color="inherit" onClick={() => handleClick("/logout")}>
+                  Logout{" "}
+                </Button>{" "}
+              </>
+            ) : (
+              <>
+                <Button color="inherit" onClick={() => handleClick("/home")}>
+                  Home{" "}
+                </Button>{" "}
+                <Button
+                  color="inherit"
+                  onClick={() => handleClick("/applications")}
+                >
+                  Applications{" "}
+                </Button>{" "}
+                <Button color="inherit" onClick={() => handleClick("/profile")}>
+                  Profile{" "}
+                </Button>{" "}
+                <Button color="inherit" onClick={() => handleClick("/logout")}>
+                  Logout{" "}
+                </Button>{" "}
+              </>
+            )
           ) : (
             <>
-              <Button color="inherit" onClick={() => handleClick("/home")}>
-                Home{" "}
+              <Button
+                color="inherit"
+                onClick={() => handleClick("/login")}
+                className={classes.button}
+              >
+                Login{" "}
               </Button>{" "}
               <Button
                 color="inherit"
-                onClick={() => handleClick("/applications")}
+                onClick={() => handleClick("/signup")}
+                className={classes.button}
               >
-                Applications{" "}
-              </Button>{" "}
-              <Button color="inherit" onClick={() => handleClick("/profile")}>
-                Profile{" "}
-              </Button>{" "}
-              <Button color="inherit" onClick={() => handleClick("/logout")}>
-                Logout{" "}
+                Signup{" "}
               </Button>{" "}
             </>
-          )
-        ) : (
-          <>
-            <Button
-              color="inherit"
-              onClick={() => handleClick("/login")}
-              className={classes.button}
-            >
-              Login{" "}
-            </Button>{" "}
-            <Button
-              color="inherit"
-              onClick={() => handleClick("/signup")}
-              className={classes.button}
-            >
-              Signup{" "}
-            </Button>{" "}
-          </>
-        )}{" "}
-      </Toolbar>{" "}
-    </AppBar>
-  );
+          )}{" "}
+        </Toolbar>{" "}
+      </AppBar>
+    );
 };
 
 export default Navbar;
